@@ -1,4 +1,4 @@
-package com.jas.display;
+package com.jas.gfx;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
@@ -86,9 +86,9 @@ public class JL10 {
 	}
 
 	/**
-	 * This method clears the screen with the color designated used by jlColor4i()/jlColor4f().
+	 * This method clears the buffer with the color designated used by jlColor4i()/jlColor4f().
 	 */
-	public static void jlClearScreen() {
+	public static void jlClearBuffer() {
 		for (int i = 0; i < pixels.length; i++) {
 			pixels[i] = 0xff000000;
 		}
@@ -131,10 +131,10 @@ public class JL10 {
 	 * Colors all draw vertices on the screen from value 0f to 1f.
 	 */
 	public static void jlColor4f(float r, float g, float b, float a) {
-		int rr = (int) r * 255;
-		int gg = (int) g * 255;
-		int bb = (int) b * 255;
-		int aa = (int) a * 255;
+		int rr = (int) (r * 255f);
+		int gg = (int) (g * 255f);
+		int bb = (int) (b * 255f);
+		int aa = (int) (a * 255f);
 
 		currentColor = (aa << 24) | (rr << 16) | (gg << 8) | bb;
 	}
@@ -179,7 +179,7 @@ public class JL10 {
 	/**
 	 * Sets the required numerical display parameters.
 	 */
-	public static void jlDisplayConfiguration(int display, int mode, int[] data) {
+	public static void jlDisplayConfiguration(int display, int mode, int... data) {
 		Display config = displayConfigurations.get(display);
 
 		if (mode == JL_DIMENSION) {
@@ -213,6 +213,9 @@ public class JL10 {
 
 	// Shape drawing stuff
 
+	/**
+	 * Creates an empty box with min (xx0, yy0) to max (xx1, yy1).
+	 */
 	public static void jlBox(int xx0, int yy0, int xx1, int yy1) {
 		Display config = getLatestDisplayConfiguration();
 
@@ -236,6 +239,10 @@ public class JL10 {
 			pixels[(x0 + (x1 - x0) * xScale) + y * config.w] = currentColor;
 		}
 	}
+	
+	/**
+	 * Creates a filled box with min (xx0, yy0) to max (xx1, yy1).
+	 */
 
 	public static void jlQuad(int xx0, int yy0, int xx1, int yy1) {
 		Display config = getLatestDisplayConfiguration();
@@ -253,6 +260,10 @@ public class JL10 {
 			}
 		}
 	}
+	
+	/**
+	 * Creates a line from coordinate (xx0, yy0) to (xx1, yy1).
+	 */
 
 	public static void jlLine(int xx0, int yy0, int xx1, int yy1) {
 		Display config = getLatestDisplayConfiguration();
