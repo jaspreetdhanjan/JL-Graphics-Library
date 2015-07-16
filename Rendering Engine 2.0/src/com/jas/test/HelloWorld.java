@@ -18,45 +18,76 @@ public class HelloWorld implements Runnable {
 		while (!stop) {
 			tick();
 			render();
+
+			try {
+				Thread.sleep(1);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		onClose();
 	}
 
 	private void init() {
-		BufferedImage textureImage = null;
+		createDisplay();
+
+		BufferedImage img = null;
 		try {
-			textureImage = ImageIO.read(getClass().getResourceAsStream("/texture.png"));
+			img = ImageIO.read(getClass().getResourceAsStream("/texture.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		int texWidth = textureImage.getWidth();
-		int texHeight = textureImage.getHeight();
-		int[] texturePixels = textureImage.getRGB(0, 0, texWidth, texHeight, null, 0, texWidth);
+		int texWidth = img.getWidth();
+		int texHeight = img.getHeight();
+		int[] texPixels = img.getRGB(0, 0, texWidth, texHeight, null, 0, texWidth);
+
+		testTexture = jlNewTexture();
+		jlTextureConfiguration(testTexture, JL_DIMENSION, texWidth, texHeight);
+		jlTextureConfiguration(testTexture, JL_SRC, texPixels);
+	}
+
+	private void createDisplay() {
+		int screenW = 400;
+		int screenH = 300;
+		int scale = 1;
 
 		displayComponent = jlNewDisplay();
-
-		jlDisplayConfiguration(displayComponent, JL_DIMENSION, 800, 600);
+		jlDisplayConfiguration(displayComponent, JL_DIMENSION, screenW, screenH, scale);
 		jlDisplayConfiguration(displayComponent, JL_RESIZABLE, true);
 		jlDisplayConfiguration(displayComponent, JL_NUM_BUFFERS, 3);
 		jlDisplayConfiguration(displayComponent, JL_VISIBLE, true);
-		jlDisplayConfiguration(displayComponent, JL_CREATE, true);
-
-		testTexture = jlNewTexture();
-
-		jlTextureConfiguration(testTexture, JL_DIMENSION, new int[] { texWidth, texHeight });
-		jlTextureConfiguration(testTexture, JL_SRC, texturePixels);
+		jlDisplayConfiguration(displayComponent, JL_CREATE);
 	}
 
+	private int ticks = 0;
+
 	private void tick() {
+		ticks++;
 	}
 
 	private void render() {
-		jlUpdate();
+		jlSwapBuffers();
+
+		jlColour4i(255, 255, 255, 255);
 		jlClearBuffer();
 
-		jlColor4i(255, 255, 255, 255);
-		jlBox(0, 0, 100, 100);
+		/*
+		jlScale(2, 2);
+
+		int xx = (int) (Math.cos(ticks % 160.0 / 60.0) * 5.0);
+		int yy = (int) (Math.sin(ticks % 160.0 / 60.0) * 5.0);
+
+		for (int y = 0; y < yy; y++) {
+			for (int x = 0; x < xx; x++) {
+				jlTranslate(50 * x, 50 * y);
+				jlDrawTexture(testTexture);
+			}
+		}*/
+
+//		jlActivateTexture(testTexture);
+		jlDrawQuad(0, 0, 100, 100);
+		jlDeactivateTexture();
 	}
 
 	private void onClose() {
