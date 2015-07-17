@@ -7,16 +7,27 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import com.jas.gfx.*;
+
 public class HelloWorld implements Runnable {
+	// Stops the run loop
 	private boolean stop = false;
+
+	// Create a display variable
 	private int displayComponent;
+
+	// Create a texture variable
 	private int testTexture;
 
+	// Create polygon
+	private JLPolygon polygon = new JLPolygon();
+
 	public void run() {
+		// Initialise objects in the thread
 		init();
 
+		// Run loop
 		while (!stop) {
-			tick();
 			render();
 
 			try {
@@ -30,8 +41,10 @@ public class HelloWorld implements Runnable {
 	}
 
 	private void init() {
+		// Create the display
 		createDisplay();
 
+		// Load the image
 		BufferedImage img = null;
 		try {
 			img = ImageIO.read(getClass().getResourceAsStream("/texture.png"));
@@ -42,9 +55,16 @@ public class HelloWorld implements Runnable {
 		int texHeight = img.getHeight();
 		int[] texPixels = img.getRGB(0, 0, texWidth, texHeight, null, 0, texWidth);
 
+		// Create a new texture and send it to JL
 		testTexture = jlNewTexture();
 		jlTextureConfiguration(testTexture, JL_DIMENSION, texWidth, texHeight);
 		jlTextureConfiguration(testTexture, JL_SRC, texPixels);
+
+		// Add points to the polygon
+		polygon.addPoint(0, 0);
+		polygon.addPoint(100, 0);
+		polygon.addPoint(100, 100);
+		polygon.addPoint(0, 100);
 	}
 
 	private void createDisplay() {
@@ -52,6 +72,7 @@ public class HelloWorld implements Runnable {
 		int screenH = 300;
 		int scale = 1;
 
+		// Create a display and set the relevant configurations
 		displayComponent = jlNewDisplay();
 		jlDisplayConfiguration(displayComponent, JL_DIMENSION, screenW, screenH, scale);
 		jlDisplayConfiguration(displayComponent, JL_RESIZABLE, true);
@@ -60,34 +81,24 @@ public class HelloWorld implements Runnable {
 		jlDisplayConfiguration(displayComponent, JL_CREATE);
 	}
 
-	private int ticks = 0;
-
-	private void tick() {
-		ticks++;
-	}
-
 	private void render() {
+		// Swap buffers
 		jlSwapBuffers();
-
-		jlColour4i(255, 255, 255, 255);
+		
+		// Clear the buffer
 		jlClearBuffer();
 
-		/*
-		jlScale(2, 2);
+		// Set the colour
+		jlColour4i(255, 0, 0, 255);
 
-		int xx = (int) (Math.cos(ticks % 160.0 / 60.0) * 5.0);
-		int yy = (int) (Math.sin(ticks % 160.0 / 60.0) * 5.0);
-
-		for (int y = 0; y < yy; y++) {
-			for (int x = 0; x < xx; x++) {
-				jlTranslate(50 * x, 50 * y);
-				jlDrawTexture(testTexture);
-			}
-		}*/
-
-//		jlActivateTexture(testTexture);
-		jlDrawQuad(0, 0, 100, 100);
-		jlDeactivateTexture();
+		// Activate the texture we created
+		jlActivateTexture(testTexture);
+		
+		// Draw the polygon
+		jlDrawPoly(polygon);
+		
+		// Deactivate the texture
+		jlDeactivateTextures();
 	}
 
 	private void onClose() {

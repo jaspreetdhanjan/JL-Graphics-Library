@@ -124,6 +124,11 @@ public class JL10 {
 
 			config.screenImage = new BufferedImage(config.w, config.h, BufferedImage.TYPE_INT_ARGB);
 			pixels = ((DataBufferInt) config.screenImage.getRaster().getDataBuffer()).getData();
+
+			for (int i = 0; i < 1; i++) {
+				NULL_TEXTURE.pixels[i] = 0xffffffff;
+			}
+
 		} else if (mode == JL_NUM_BUFFERS) {
 			config.numBuffers = data[0];
 		} else if (mode == JL_CREATE) {
@@ -339,6 +344,21 @@ public class JL10 {
 		}
 	}
 
+	/**
+	 * Draws an inputted polygon.
+	 */
+	public static void jlDrawPoly(JLPolygon p) {
+		Display config = getLatestDisplayConfiguration();
+		Texture sprite = getTextureConfiguration(currentTexture);
+
+		for (int y = 0; y < config.h; y++) {
+			for (int x = 0; x < config.w; x++) {
+				int colour = sprite.pixels[(x % sprite.w) + (y % sprite.h) * sprite.w];
+				if (p.checkPointContains(x, y)) pixels[x + y * config.w] = colour & currentColour;
+			}
+		}
+	}
+
 	// Texture stuff
 
 	/**
@@ -382,7 +402,7 @@ public class JL10 {
 	/**
 	 * Deactivates any potential textures that could have been previously activated.
 	 */
-	public static void jlDeactivateTexture() {
+	public static void jlDeactivateTextures() {
 		currentTexture = JL_NULL;
 	}
 
@@ -391,7 +411,7 @@ public class JL10 {
 	 */
 	private static Texture getTextureConfiguration(int texture) {
 		if (texture == JL_NULL) return NULL_TEXTURE;
-		if (texture < 0 || texture >= TEXTURE_CONFIGURATIONS.size() - 1) throw new JLException("Invalid texture");
+		if (texture < 0 || texture >= TEXTURE_CONFIGURATIONS.size()) throw new JLException("Invalid texture");
 		return TEXTURE_CONFIGURATIONS.get(texture);
 	}
 }
