@@ -495,7 +495,7 @@ public class JL {
 	 * Destroys a given texture.
 	 * 
 	 * @param texture
-	 *            the texture you would like to destroy
+	 *            the texture you would like to destroy.
 	 */
 	public static void jlDestroyTexture(int texture) {
 		if (texture == currentTexture) throw JLException.ACTIVE_TEXTURE_EXCEPTION;
@@ -561,11 +561,22 @@ public class JL {
 
 	// Polygon renderer stuff
 
+	/**
+	 * Creates a polygon buffer.
+	 * 
+	 * @return A new polygon configuration.
+	 */
 	public static int jlNewPolygonBuffer() {
 		POLY_CONFIGURATIONS.add(new Polygon());
 		return POLY_CONFIGURATIONS.size() - 1;
 	}
 
+	/**
+	 * Destroys a given polygon buffer.
+	 * 
+	 * @param polygonBuffer
+	 *            the polygon buffer you would like to destroy.
+	 */
 	public static void jlDestroyPolygon(int polygonBuffer) {
 		POLY_CONFIGURATIONS.remove(polygonBuffer);
 	}
@@ -580,6 +591,12 @@ public class JL {
 		}
 	}
 
+	/**
+	 * Renders the polygon buffer.
+	 * 
+	 * @param polygonBuffer
+	 *            the polygon buffer you would like to draw.
+	 */
 	public static void jlDrawPoly(int polygonBuffer) {
 		Display config = getLatestDisplayConfiguration();
 		Texture sprite = getTextureConfiguration(currentTexture);
@@ -609,6 +626,14 @@ public class JL {
 		}
 	}
 
+	/**
+	 * Gets the polygon configuration.
+	 * 
+	 * @return The PolyConfiguration that was specified in the parameter.
+	 * 
+	 * @param polygonBuffer
+	 *            the PolygonConfiguration you would like to retrieve.
+	 */
 	private static Polygon getPolygonConfiguration(int polygonBuffer) {
 		return POLY_CONFIGURATIONS.get(polygonBuffer);
 	}

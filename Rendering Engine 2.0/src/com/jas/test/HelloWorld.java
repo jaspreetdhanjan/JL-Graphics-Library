@@ -63,11 +63,12 @@ public class HelloWorld implements Runnable {
 		testTexture = jlNewTexture();
 		jlTextureConfiguration(testTexture, JL_DIMENSION, texWidth, texHeight);
 		jlTextureConfiguration(testTexture, JL_SRC, texPixels);
+		// Not required unless you want to scale for more than factor 1
 		jlTextureConfiguration(testTexture, JL_TEXTURE_SCALE, 1, 1);
 
 		// Create polygon buffer and add vertices
 		polygonBuffer = jlNewPolygonBuffer();
-		int offs = 200;
+		int offs = 100;
 		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, -50 + offs, -50 + offs);
 		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 50 + offs, -50 + offs);
 		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 0 + offs, 50 + offs);
@@ -84,7 +85,6 @@ public class HelloWorld implements Runnable {
 		jlDisplayConfiguration(displayComponent, JL_RESIZABLE, JL_TRUE);
 		jlDisplayConfiguration(displayComponent, JL_NUM_BUFFERS, 3);
 		jlDisplayConfiguration(displayComponent, JL_VISIBLE, JL_TRUE);
-
 		// IMPORTANT. You must create the display AFTER setting the configurations.
 		jlDisplayConfiguration(displayComponent, JL_CREATE);
 	}
@@ -101,8 +101,6 @@ public class HelloWorld implements Runnable {
 
 		// Activate the texture we created
 		jlActivateTexture(testTexture);
-		
-		jlDrawCircle(150, 150, 50);
 
 		// Draw the polygon
 		jlDrawPoly(polygonBuffer);
