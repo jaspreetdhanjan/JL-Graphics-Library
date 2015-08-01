@@ -605,7 +605,7 @@ public class JL {
 		for (int y = 0; y < config.h * yScale; y++) {
 			for (int x = 0; x < config.w * xScale; x++) {
 				if (x < 0 || y < 0 || x >= config.w || y >= config.h) continue;
-
+				
 				// Check if pixel is inside the polygon.
 				boolean inside = false;
 				int verts = poly.points.size();
@@ -615,13 +615,16 @@ public class JL {
 
 					inside ^= ((p0.y >= y) != (p1.y >= y)) && (x <= (p1.x - p0.x) * (y - p0.y) / (p1.y - p0.y) + p0.x);
 				}
-
 				if (!inside) continue;
 
 				int u = (x / texLevelX) % sprite.w;
 				int v = (y / texLevelY) % sprite.h;
 				int colour = sprite.pixels[u + v * sprite.w];
-				pixels[x + y * config.w] = colour & currentColour;
+
+				int xx = x + xOffs;
+				int yy = y + yOffs;
+				if (xx < 0 || yy < 0 || xx >= config.w || yy >= config.h) continue;
+				pixels[xx + yy * config.w] = colour & currentColour;
 			}
 		}
 	}

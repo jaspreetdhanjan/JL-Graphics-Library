@@ -46,7 +46,7 @@ public class HelloWorld implements Runnable {
 
 	private void init() {
 		// Create the display
-		createDisplay();
+		createDisplay(400, 300, 1);
 
 		// Load the image
 		BufferedImage img = null;
@@ -63,30 +63,24 @@ public class HelloWorld implements Runnable {
 		testTexture = jlNewTexture();
 		jlTextureConfiguration(testTexture, JL_DIMENSION, texWidth, texHeight);
 		jlTextureConfiguration(testTexture, JL_SRC, texPixels);
-		// Not required unless you want to scale for more than factor 1
-		jlTextureConfiguration(testTexture, JL_TEXTURE_SCALE, 1, 1);
+		jlTextureConfiguration(testTexture, JL_TEXTURE_SCALE, 1, 1); // <- Not required unless you want to scale for more than factor 1
 
 		// Create polygon buffer and add vertices
 		polygonBuffer = jlNewPolygonBuffer();
-		int offs = 100;
-		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, -50 + offs, -50 + offs);
-		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 50 + offs, -50 + offs);
-		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 0 + offs, 50 + offs);
+		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 0,   0);
+		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 128, 0);
+		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 128, 128);
+		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 0,   128);
 	}
 
-	private void createDisplay() {
-		int screenW = 400;
-		int screenH = 300;
-		int scale = 1;
-
+	private void createDisplay(int screenW, int screenH, int scale) {
 		// Create a display and set the relevant configurations
 		displayComponent = jlNewDisplay();
 		jlDisplayConfiguration(displayComponent, JL_DIMENSION, screenW, screenH, scale);
 		jlDisplayConfiguration(displayComponent, JL_RESIZABLE, JL_TRUE);
 		jlDisplayConfiguration(displayComponent, JL_NUM_BUFFERS, 3);
 		jlDisplayConfiguration(displayComponent, JL_VISIBLE, JL_TRUE);
-		// IMPORTANT. You must create the display AFTER setting the configurations.
-		jlDisplayConfiguration(displayComponent, JL_CREATE);
+		jlDisplayConfiguration(displayComponent, JL_CREATE); // <- IMPORTANT. You must create the display AFTER setting the configurations.
 	}
 
 	private void render() {
@@ -99,6 +93,10 @@ public class HelloWorld implements Runnable {
 		// Set the colour
 		jlColour4i(255, 255, 255, 255);
 
+		int xx = (int)(Math.sin(System.currentTimeMillis()/120.0%60.0)*40.0);
+		int yy = (int)(Math.cos(System.currentTimeMillis()/120.0%60.0)*40.0);
+		jlTranslate(40+xx, 40+yy);
+		
 		// Activate the texture we created
 		jlActivateTexture(testTexture);
 
