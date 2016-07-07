@@ -1,6 +1,6 @@
-package com.jas.test;
+package com.jaspreetdhanjan.test;
 
-import static com.jas.gfx.JL.*;
+import static com.jaspreetdhanjan.gfx.JL.*;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -45,8 +45,17 @@ public class HelloWorld implements Runnable {
 	}
 
 	private void init() {
-		// Create the display
-		createDisplay(400, 300, 1);
+		int screenW = 400;
+		int screenH = 300;
+		int scale = 1; // Optional - you can leave this parameter.
+
+		// Create a display and set the relevant configurations
+		displayComponent = jlNewDisplay();
+		jlDisplayConfiguration(displayComponent, JL_DIMENSION, screenW, screenH, scale);
+		jlDisplayConfiguration(displayComponent, JL_RESIZABLE, JL_TRUE);
+		jlDisplayConfiguration(displayComponent, JL_NUM_BUFFERS, 3);
+		jlDisplayConfiguration(displayComponent, JL_VISIBLE, JL_TRUE);
+		jlDisplayConfiguration(displayComponent, JL_CREATE); // <- IMPORTANT. You must create the display AFTER setting the configurations.
 
 		// Load the image
 		BufferedImage img = null;
@@ -63,24 +72,15 @@ public class HelloWorld implements Runnable {
 		testTexture = jlNewTexture();
 		jlTextureConfiguration(testTexture, JL_DIMENSION, texWidth, texHeight);
 		jlTextureConfiguration(testTexture, JL_SRC, texPixels);
-		jlTextureConfiguration(testTexture, JL_TEXTURE_SCALE, 1, 1); // <- Not required unless you want to scale for more than factor 1
+		jlTextureConfiguration(testTexture, JL_SCALE, 1, 1); // <- Not required unless you want to scale for more than factor 1.
+		jlTextureConfiguration(testTexture, JL_TRANSLATE, 0, 0); // <- Not required unless you want to translate the texture.
 
 		// Create polygon buffer and add vertices
 		polygonBuffer = jlNewPolygonBuffer();
-		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 0,   0);
+		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 0, 0);
 		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 128, 0);
 		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 128, 128);
-		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 0,   128);
-	}
-
-	private void createDisplay(int screenW, int screenH, int scale) {
-		// Create a display and set the relevant configurations
-		displayComponent = jlNewDisplay();
-		jlDisplayConfiguration(displayComponent, JL_DIMENSION, screenW, screenH, scale);
-		jlDisplayConfiguration(displayComponent, JL_RESIZABLE, JL_TRUE);
-		jlDisplayConfiguration(displayComponent, JL_NUM_BUFFERS, 3);
-		jlDisplayConfiguration(displayComponent, JL_VISIBLE, JL_TRUE);
-		jlDisplayConfiguration(displayComponent, JL_CREATE); // <- IMPORTANT. You must create the display AFTER setting the configurations.
+		jlPolygonBufferConfiguration(polygonBuffer, JL_ADD, 0, 128);
 	}
 
 	private void render() {
@@ -91,23 +91,19 @@ public class HelloWorld implements Runnable {
 		jlClearBuffer();
 
 		// Set the colour
-		jlColour4i(255, 255, 255, 255);
+		jlColour4f(1f, 1f, 1f, 1f);
 
-		int xx = (int)(Math.sin(System.currentTimeMillis()/120.0%60.0)*40.0);
-		int yy = (int)(Math.cos(System.currentTimeMillis()/120.0%60.0)*40.0);
-		jlTranslate(40+xx, 40+yy);
-		
 		// Activate the texture we created
 		jlActivateTexture(testTexture);
 
 		// Draw the polygon
 		jlDrawPoly(polygonBuffer);
 
-		// Deactivate the texture
+		// Deactivate the textures
 		jlDeactivateTextures();
 	}
 
-	// Destroy objects
+	// Destroy objects from memory
 	private void onClose() {
 		jlDestroyDisplay(displayComponent);
 		jlDestroyTexture(testTexture);
@@ -115,6 +111,6 @@ public class HelloWorld implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		new Thread(new HelloWorld(), "Display Thread").start();
+		new Thread(new HelloWorld()).start();
 	}
 }
