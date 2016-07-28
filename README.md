@@ -14,7 +14,7 @@ A quick and easy way to create a simple 2D graphical application in Java without
 - Static and dynamic collision entities
 
 <h2>Requried Libraries</h2>
-- The Vec2.java class found in my <a href="https://github.com/jaspreetdhanjan/Vector-Math-Library">Vector-Math-Library</a>
+- The Vec2 class found in my <a href="https://github.com/jaspreetdhanjan/Vector-Math-Library">Vector-Math-Library</a>
 
 <h2>License</h2>
 Free to use for anyone.
