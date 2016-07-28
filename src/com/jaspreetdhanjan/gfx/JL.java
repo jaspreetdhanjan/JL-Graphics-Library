@@ -1,120 +1,9 @@
 package com.jaspreetdhanjan.gfx;
 
-import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.image.*;
 import java.util.*;
 
-import javax.swing.JFrame;
-
 public class JL {
-	/**
-	 * Holds display information required for creating display configurations.
-	 * 
-	 * @author Jaspreet Dhanjan
-	 */
-	private static class Display extends Canvas {
-		private static final long serialVersionUID = 1L;
-
-		public int screenWidth, screenHeight, scale;
-		public boolean isResizable;
-		public boolean isVisible;
-		public String title = "";
-		public int numBuffers = 3;
-
-		public BufferedImage screenImage;
-
-		public void createDisplay() {
-			Dimension d = new Dimension(screenWidth * scale, screenHeight * scale);
-			setMinimumSize(d);
-			setMaximumSize(d);
-			setPreferredSize(d);
-
-			JFrame frame = new JFrame(title);
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new BorderLayout());
-			frame.add(this, BorderLayout.CENTER);
-			frame.pack();
-			frame.setResizable(isResizable);
-			frame.setLocationRelativeTo(null);
-			frame.setVisible(isVisible);
-		}
-
-		public void swapBuffers() {
-			BufferStrategy bs = getBufferStrategy();
-			if (bs == null) {
-				createBufferStrategy(numBuffers);
-				return;
-			}
-
-			int w = screenWidth * scale;
-			int h = screenHeight * scale;
-
-			Graphics g = bs.getDrawGraphics();
-			g.drawImage(screenImage, 0, 0, w, h, null);
-			g.dispose();
-			bs.show();
-		}
-	}
-
-	/**
-	 * Holds texture information required for creating texture configurations.
-	 * 
-	 * @author Jaspreet Dhanjan
-	 */
-	private static class Texture {
-		public int w, h;
-		public int[] pixels;
-
-		public Texture() {
-		}
-
-		public Texture(int w, int h) {
-			this.w = w;
-			this.h = h;
-			pixels = new int[w * h];
-		}
-	}
-
-	/**
-	 * Holds point information required for coordinating polygons.
-	 * 
-	 * @author Jaspreet Dhanjan
-	 */
-	private static class Vertex {
-		public int x, y;
-
-		public Vertex(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-	}
-
-	/**
-	 * Holds polygon information required for creating polygon configurations.
-	 * 
-	 * @author Jaspreet Dhanjan
-	 */
-	private static class Polygon {
-		private List<Vertex> points = new ArrayList<Vertex>();
-
-		public Polygon(Vertex... _points) {
-			for (int i = 0; i < _points.length; i++) {
-				points.add(_points[i]);
-			}
-		}
-
-		public void addVertex(int x, int y) {
-			points.add(new Vertex(x, y));
-		}
-
-		public int nodes() {
-			return points.size();
-		}
-	}
-
 	public static final int JL_DIMENSION = 0;
 	public static final int JL_RESIZABLE = 1;
 	public static final int JL_VISIBLE = 2;
@@ -129,23 +18,29 @@ public class JL {
 	public static final int JL_ADD = 11;
 
 	private static final Texture NULL_TEXTURE = new Texture(1, 1);
-
 	private static final List<Texture> TEXTURE_CONFIGURATIONS = new ArrayList<Texture>();
+
 	private static final List<Polygon> POLY_CONFIGURATIONS = new ArrayList<Polygon>();
 
-	private static Display displayConfiguration;
-	private static int[] pixels;
+	private static Display d;
+	private static int[] pixels = null;
 	private static int currentColour = 0xffffffff;
 	private static int currentTexture = JL_NULL;
-	private static int xScale = 1, yScale = 1;
-	private static int xOffs = 0, yOffs = 0;
-	private static int texScaleX = 1, texScaleY = 1;
-	private static int texTransX = 0, texTransY = 0;
+
+	private static int xScale = 1;
+	private static int yScale = 1;
+	private static int xOffs = 0;
+	private static int yOffs = 0;
+
+	private static int texScaleX = 1;
+	private static int texScaleY = 1;
+	private static int texTransX = 0;
+	private static int texTransY = 0;
+
+	private static Keyboard keyboardListener = null;
 
 	private JL() {
 	}
-
-	// Display stuff
 
 	/**
 	 * Creates a new display.
@@ -153,7 +48,7 @@ public class JL {
 	 * @return A new display configuration.
 	 */
 	public static int jlNewDisplay() {
-		displayConfiguration = new Display();
+		d = new Display();
 		int id = (int) (Math.random() * 255);
 		return id & 0xff;
 	}
@@ -166,7 +61,7 @@ public class JL {
 	 */
 	public static void jlDestroyDisplay(int display) {
 		display = JL_NULL;
-		displayConfiguration = null;
+		d = null;
 	}
 
 	/**
@@ -187,28 +82,28 @@ public class JL {
 				int scale = 1;
 				if (data.length == 3) scale = data[2];
 
-				displayConfiguration.screenWidth = data[0];
-				displayConfiguration.screenHeight = data[1];
-				displayConfiguration.scale = scale;
-				displayConfiguration.screenImage = new BufferedImage(displayConfiguration.screenWidth, displayConfiguration.screenHeight, BufferedImage.TYPE_INT_ARGB);
-				pixels = ((DataBufferInt) displayConfiguration.screenImage.getRaster().getDataBuffer()).getData();
+				d.screenWidth = data[0];
+				d.screenHeight = data[1];
+				d.screenScale = scale;
+				d.screenImage = new BufferedImage(d.screenWidth, d.screenHeight, BufferedImage.TYPE_INT_ARGB);
+				pixels = ((DataBufferInt) d.screenImage.getRaster().getDataBuffer()).getData();
 				NULL_TEXTURE.pixels[0] = 0xffffffff;
 				break;
 			}
 			case JL_NUM_BUFFERS: {
-				displayConfiguration.numBuffers = data[0];
+				d.numBuffers = data[0];
 				break;
 			}
 			case JL_CREATE: {
-				displayConfiguration.createDisplay();
+				d.createDisplay();
 				break;
 			}
 			case JL_RESIZABLE: {
-				displayConfiguration.isResizable = data[0] == JL_TRUE;
+				d.isResizable = data[0] == JL_TRUE;
 				break;
 			}
 			case JL_VISIBLE: {
-				displayConfiguration.isVisible = data[0] == JL_TRUE;
+				d.isVisible = data[0] == JL_TRUE;
 				break;
 			}
 			default: {
@@ -217,13 +112,11 @@ public class JL {
 		}
 	}
 
-	// Util stuff
-
 	/**
 	 * Updates the current display configuration. Must be called every update.
 	 */
 	public static void jlSwapBuffers() {
-		displayConfiguration.swapBuffers();
+		d.swapBuffers();
 	}
 
 	/**
@@ -231,7 +124,7 @@ public class JL {
 	 */
 	public static void jlClearBuffer() {
 		for (int i = 0; i < pixels.length; i++) {
-			pixels[i] = 0xffffff;
+			pixels[i] = 0xffffffff;
 		}
 	}
 
@@ -319,12 +212,10 @@ public class JL {
 	public static void jlSetPixel(int x, int y) {
 		int xx = x + xOffs;
 		int yy = y + yOffs;
-		if (xx >= 0 || yy >= 0 || xx < displayConfiguration.screenWidth || yy < displayConfiguration.screenHeight) {
-			pixels[xx + yy * displayConfiguration.screenWidth] = currentColour;
+		if (xx >= 0 || yy >= 0 || xx < d.screenWidth || yy < d.screenHeight) {
+			pixels[xx + yy * d.screenWidth] = currentColour;
 		}
 	}
-
-	// Shape drawing stuff
 
 	/**
 	 * Creates an unfilled rectangle with a specific colour designated by jlColour4i()/ jlColour4f().
@@ -349,14 +240,14 @@ public class JL {
 
 		if (xx0 < 0) xx0 = 0;
 		if (yy0 < 0) yy0 = 0;
-		if (xx1 > displayConfiguration.screenWidth) xx1 = displayConfiguration.screenWidth;
-		if (yy1 > displayConfiguration.screenHeight) yy1 = displayConfiguration.screenHeight;
+		if (xx1 > d.screenWidth) xx1 = d.screenWidth;
+		if (yy1 > d.screenHeight) yy1 = d.screenHeight;
 
 		for (int y = yy0; y <= yy1; y++) {
 			for (int x = xx0; x <= xx1; x++) {
-				if (x < 0 || y < 0 || x >= displayConfiguration.screenWidth || y >= displayConfiguration.screenHeight) continue;
+				if (x < 0 || y < 0 || x >= d.screenWidth || y >= d.screenHeight) continue;
 
-				if (x == x0 || y == y0 || x == x1 || y == y1) pixels[x + y * displayConfiguration.screenWidth] = currentColour;
+				if (x == x0 || y == y0 || x == x1 || y == y1) pixels[x + y * d.screenWidth] = currentColour;
 				if (y > y0 && y < y1 && x < x1 - 1) x = x1 - 1;
 			}
 		}
@@ -392,15 +283,15 @@ public class JL {
 		for (int x = xx0; x < xx1; x++) {
 			if (D > 0) {
 				y++;
-				if (x < 0 || x >= displayConfiguration.screenWidth) continue;
-				if (y < 0 || y >= displayConfiguration.screenHeight) continue;
-				pixels[x + y * displayConfiguration.screenWidth] = currentColour;
+				if (x < 0 || x >= d.screenWidth) continue;
+				if (y < 0 || y >= d.screenHeight) continue;
+				pixels[x + y * d.screenWidth] = currentColour;
 
 				D += (2 * dy - 2 * dx);
 			} else {
-				if (x < 0 || x >= displayConfiguration.screenWidth) continue;
-				if (y < 0 || y >= displayConfiguration.screenHeight) continue;
-				pixels[x + y * displayConfiguration.screenWidth] = currentColour;
+				if (x < 0 || x >= d.screenWidth) continue;
+				if (y < 0 || y >= d.screenHeight) continue;
+				pixels[x + y * d.screenWidth] = currentColour;
 
 				D += 2 * dy;
 			}
@@ -429,14 +320,14 @@ public class JL {
 
 		for (int y = yy0; y < yy1; y++) {
 			for (int x = xx0; x < xx1; x++) {
-				if (x < 0 || y < 0 || x >= displayConfiguration.screenWidth || y >= displayConfiguration.screenHeight) continue;
+				if (x < 0 || y < 0 || x >= d.screenWidth || y >= d.screenHeight) continue;
 
 				int xo = x + texTransX;
 				int yo = y + texTransY;
 				int u = (xo / texScaleX) % sprite.w;
 				int v = (yo / texScaleY) % sprite.h;
 				int src = sprite.pixels[u + v * sprite.w];
-				pixels[x + y * displayConfiguration.screenWidth] = src & currentColour;
+				pixels[x + y * d.screenWidth] = src & currentColour;
 			}
 		}
 	}
@@ -461,12 +352,12 @@ public class JL {
 
 		if (x0 < 0) x0 = 0;
 		if (y0 < 0) y0 = 0;
-		if (x1 > displayConfiguration.screenWidth) x1 = displayConfiguration.screenWidth;
-		if (y1 > displayConfiguration.screenHeight) y1 = displayConfiguration.screenHeight;
+		if (x1 > d.screenWidth) x1 = d.screenWidth;
+		if (y1 > d.screenHeight) y1 = d.screenHeight;
 
 		for (int y = y0; y < y1 * yScale; y++) {
 			for (int x = x0; x < x1 * xScale; x++) {
-				if (x < 0 || y < 0 || x >= displayConfiguration.screenWidth || y >= displayConfiguration.screenHeight) continue;
+				if (x < 0 || y < 0 || x >= d.screenWidth || y >= d.screenHeight) continue;
 
 				int xd = x - xp;
 				int yd = y - yp;
@@ -478,12 +369,10 @@ public class JL {
 				int u = (xo / texScaleX) % sprite.w;
 				int v = (yo / texScaleY) % sprite.h;
 				int src = sprite.pixels[u + v * sprite.w];
-				pixels[x + y * displayConfiguration.screenWidth] = src & currentColour;
+				pixels[x + y * d.screenWidth] = src & currentColour;
 			}
 		}
 	}
-
-	// Texture stuff
 
 	/**
 	 * Creates a new texture.
@@ -572,8 +461,6 @@ public class JL {
 		return TEXTURE_CONFIGURATIONS.get(texture);
 	}
 
-	// Polygon renderer stuff
-
 	/**
 	 * Creates a polygon buffer.
 	 * 
@@ -594,6 +481,16 @@ public class JL {
 		POLY_CONFIGURATIONS.remove(polygonBuffer);
 	}
 
+	/**
+	 * Sets the required polygon parameters.
+	 * 
+	 * @param polygonBuffer
+	 *            the buffer you want to write to.
+	 * @param mode
+	 *            the mode of the polgyon shape.
+	 * @param values
+	 *            the data required to set the vertices.
+	 */
 	public static void jlPolygonBufferConfiguration(int polygonBuffer, int mode, int... values) {
 		Polygon poly = getPolygonConfiguration(polygonBuffer);
 
@@ -620,14 +517,14 @@ public class JL {
 
 		int x0 = 0;
 		int y0 = 0;
-		int x1 = displayConfiguration.screenWidth * xScale;
-		int y1 = displayConfiguration.screenHeight * yScale;
+		int x1 = d.screenWidth * xScale;
+		int y1 = d.screenHeight * yScale;
 
 		for (int y = y0; y < y1; y++) {
 			for (int x = x0; x < x1; x++) {
-				if (x < 0 || y < 0 || x >= displayConfiguration.screenWidth || y >= displayConfiguration.screenHeight) continue;
+				if (x < 0 || y < 0 || x >= d.screenWidth || y >= d.screenHeight) continue;
 
-				boolean inside = checkPixelInside(poly, x, y);
+				boolean inside = poly.checkPixelInside(poly, x, y);
 				if (!inside) continue;
 
 				int xo = x + texTransX;
@@ -638,27 +535,35 @@ public class JL {
 
 				int xx = x + xOffs;
 				int yy = y + yOffs;
-				if (xx < 0 || yy < 0 || xx >= displayConfiguration.screenWidth || yy >= displayConfiguration.screenHeight) continue;
-				pixels[xx + yy * displayConfiguration.screenWidth] = src & currentColour;
+				if (xx < 0 || yy < 0 || xx >= d.screenWidth || yy >= d.screenHeight) continue;
+				pixels[xx + yy * d.screenWidth] = src & currentColour;
 			}
 		}
 	}
 
-	// Check if pixel is inside the polygon.
-	private static boolean checkPixelInside(Polygon poly, int x, int y) {
-		boolean inside = false;
-
-		int nodes = poly.nodes();
-		for (int i = 0, j = nodes - 1; i < nodes; j = i++) {
-			Vertex p0 = poly.points.get(i);
-			Vertex p1 = poly.points.get(j);
-
-			inside ^= ((p0.y >= y) != (p1.y >= y)) && (x <= (p1.x - p0.x) * (y - p0.y) / (p1.y - p0.y) + p0.x);
-		}
-		return inside;
-	}
-
 	private static Polygon getPolygonConfiguration(int polygonBuffer) {
 		return POLY_CONFIGURATIONS.get(polygonBuffer);
+	}
+
+	/**
+	 * Creates a keyboard for usage.
+	 */
+
+	public static void jlCreateKeyboard() {
+		if (keyboardListener != null) return;
+		keyboardListener = new Keyboard();
+		d.addKeyListener(keyboardListener);
+	}
+
+	/**
+	 * Gets the key status from input.
+	 * 
+	 * @param keyCode
+	 *            the index of the key using AWT's KeyCode.
+	 * @return true if the key is pressed, false if otherwise.
+	 */
+
+	public static boolean jlGetKeyStatus(int keyCode) {
+		return keyboardListener.getKeyStatus(keyCode);
 	}
 }
