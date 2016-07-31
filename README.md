@@ -1,7 +1,9 @@
 # JL Library
 
 <h2>Introduction</h2>
-A quick and easy way to create a simple 2D graphical application in Java without the need of excessive boilerplating. The library also contains a 2D physics library. A lot of the code is unfinished and requires a lot of polishing – it'll be updated weekly. Created by Jaspreet Dhanjan.
+A quick and easy way to create a simple 2D graphical application in Java without the need of excessive boilerplating. The library also contains a 2D physics library. A lot of the code is unfinished and requires a lot of polishing – it'll be updated weekly.
+
+Created by Jaspreet Dhanjan.
 
 <h2>Graphics Features</h2>
 - Quick and simple window creation
