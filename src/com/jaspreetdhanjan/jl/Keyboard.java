@@ -1,4 +1,4 @@
-package com.jaspreetdhanjan.gfx;
+package com.jaspreetdhanjan.jl;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;

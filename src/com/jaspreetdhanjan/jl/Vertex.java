@@ -1,4 +1,4 @@
-package com.jaspreetdhanjan.gfx;
+package com.jaspreetdhanjan.jl;
 
 public class Vertex {
 	public int x, y;

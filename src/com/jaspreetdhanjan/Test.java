@@ -1,8 +1,7 @@
 package com.jaspreetdhanjan;
 
-import static com.jaspreetdhanjan.gfx.JL.*;
+import static com.jaspreetdhanjan.jl.JL.*;
 
-import java.awt.event.KeyEvent;
 import java.util.*;
 
 import com.jaspreetdhanjan.phys.*;
@@ -50,6 +49,7 @@ public class Test implements Runnable {
 		jlDisplayConfiguration(displayComponent, JL_CREATE);
 
 		jlCreateKeyboard();
+		jlCreateMouse();
 	}
 
 	private void addRandomCircle() {
@@ -63,20 +63,11 @@ public class Test implements Runnable {
 		testCircleColours.add(random.nextInt(0x555555));
 	}
 
-	boolean hold = false;
-	int maxHandles = 12;
-
 	private void tick() {
-		if (jlGetKeyStatus(KeyEvent.VK_SPACE) && !hold && maxHandles > 0) {
-			hold = true;
+		if (random.nextInt(50) == 0) {
 			addRandomCircle();
 		}
-
-		if (hold) {
-			maxHandles--;
-			hold = false;
-		}
-
+		
 		physicsSpace.tick();
 	}
 
@@ -93,9 +84,9 @@ public class Test implements Runnable {
 			Vec2 p = circle.getPos();
 
 			int c = testCircleColours.get(i);
-			float r = (c >> 16) & 255;
-			float g = (c >> 8) & 255;
-			float b = (c) & 255;
+			float r = (c >> 16) & 0xff0000;
+			float g = (c >> 8) & 0xff00;
+			float b = (c) & 0xff;
 
 			jlColour4f(r, g, b, 1f);
 			jlDrawBox((int) bb.x0, (int) bb.y0, (int) bb.x1, (int) bb.y1);

@@ -1,4 +1,4 @@
-package com.jaspreetdhanjan.gfx;
+package com.jaspreetdhanjan.jl;
 
 import java.awt.image.*;
 import java.util.*;
@@ -16,6 +16,10 @@ public class JL {
 	public static final int JL_SCALE = 9;
 	public static final int JL_TRANSLATE = 10;
 	public static final int JL_ADD = 11;
+	public static final int JL_MOUSE_POS_X = 12;
+	public static final int JL_MOUSE_POS_Y = 13;
+	public static final int JL_MOUSE_BUTTON_LEFT = 14;
+	public static final int JL_MOUSE_BUTTON_RIGHT = 15;
 
 	private static final Texture NULL_TEXTURE = new Texture(1, 1);
 	private static final List<Texture> TEXTURE_CONFIGURATIONS = new ArrayList<Texture>();
@@ -38,6 +42,7 @@ public class JL {
 	private static int texTransY = 0;
 
 	private static Keyboard keyboardListener = null;
+	private static Mouse mouseListener = null;
 
 	private JL() {
 	}
@@ -560,10 +565,53 @@ public class JL {
 	 * 
 	 * @param keyCode
 	 *            the index of the key using AWT's KeyCode.
-	 * @return true if the key is pressed, false if otherwise.
+	 * @return JL_TRUE if the key is pressed, JL_FALSE if otherwise.
 	 */
 
-	public static boolean jlGetKeyStatus(int keyCode) {
-		return keyboardListener.getKeyStatus(keyCode);
+	public static int jlGetKeyStatus(int keyCode) {
+		if (keyboardListener == null) throw JLException.KEYBOARD_NOT_CREATED_EXCEPTION;
+		return keyboardListener.getKeyStatus(keyCode) ? JL_TRUE : JL_FALSE;
+	}
+
+	/**
+	 * Creates a mouse for usage.
+	 */
+
+	public static void jlCreateMouse() {
+		if (mouseListener != null) return;
+		mouseListener = new Mouse();
+		d.addMouseListener(mouseListener);
+		d.addMouseMotionListener(mouseListener);
+	}
+
+	/**
+	 * Gets the mouse status depending on the given parameter.
+	 * 
+	 * @param statusType
+	 *            the type of mouse input to recieve.
+	 * 
+	 * @return the mouse status.
+	 */
+
+	public static int jlGetMouseStatus(int statusType) {
+		if (mouseListener == null) throw JLException.MOUSE_NOT_CREATED_EXCEPTION;
+
+		switch (statusType) {
+			case JL_MOUSE_POS_X: {
+				return mouseListener.getMouseX() * d.screenScale;
+			}
+			case JL_MOUSE_POS_Y: {
+				return mouseListener.getMouseY() * d.screenScale;
+			}
+			case JL_MOUSE_BUTTON_LEFT: {
+				return mouseListener.getLeftMouseButton() ? JL_TRUE : JL_FALSE;
+			}
+			case JL_MOUSE_BUTTON_RIGHT: {
+				return mouseListener.getRightMouseButton() ? JL_TRUE : JL_FALSE;
+			}
+			default: {
+				throw JLException.INVALID_CONSTANT_EXCEPTION;
+			}
+		}
 	}
 }

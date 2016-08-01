@@ -8,7 +8,7 @@ import com.jaspreetdhanjan.phys.shape.*;
 import com.jaspreetdhanjan.vecmath.Vec2;
 
 public class DynamicCollider extends Collider {
-	private final float mass;
+	private float mass;
 
 	private Vec2 f = new Vec2();
 	private List<Collision> lastCollisions = new ArrayList<Collision>();
@@ -54,5 +54,10 @@ public class DynamicCollider extends Collider {
 
 	public float getMass() {
 		return mass;
+	}
+
+	public void setMass(float mass) {
+		if (mass < 0) mass = 0;
+		this.mass = mass;
 	}
 }
