@@ -1,7 +1,7 @@
-# JL Library
+# JL-Physics-Library
 
 <h2>Introduction</h2>
-A quick and easy way to create a simple 2D graphical application in Java without the need of excessive boilerplating. 
+A quick and easy way to create a simple 2D graphical application in Java without the need of excessive boilerplating.
 
 Created by Jaspreet Dhanjan.
 
