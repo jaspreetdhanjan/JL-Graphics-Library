@@ -2,11 +2,12 @@ package com.jaspreetdhanjan;
 
 import static com.jaspreetdhanjan.jl.JL.*;
 
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
-import com.jaspreetdhanjan.phys.*;
-import com.jaspreetdhanjan.phys.shape.CircleShape;
-import com.jaspreetdhanjan.vecmath.Vec2;
+import javax.imageio.ImageIO;
+
+import com.sun.glass.events.KeyEvent;
 
 public class Test implements Runnable {
 	private int screenW = 800;
@@ -14,11 +15,7 @@ public class Test implements Runnable {
 	private boolean stop = false;
 	private int displayComponent;
 
-	private PhysicsSpace physicsSpace = new PhysicsSpace(new AABB(0, 0, screenW, screenH));
-
-	private Random random = new Random();
-	private List<CircleShape> testCircles = new ArrayList<CircleShape>();
-	private List<Integer> testCircleColours = new ArrayList<Integer>();
+	private int testTexture;
 
 	public void run() {
 		init();
@@ -46,52 +43,50 @@ public class Test implements Runnable {
 		jlDisplayConfiguration(displayComponent, JL_RESIZABLE, JL_FALSE);
 		jlDisplayConfiguration(displayComponent, JL_NUM_BUFFERS, 1);
 		jlDisplayConfiguration(displayComponent, JL_VISIBLE, JL_TRUE);
-		jlDisplayConfiguration(displayComponent, JL_CREATE);
+		jlDisplayConfiguration(displayComponent, JL_CREATE); // Important! Create the display after applying configurations.
 
 		jlCreateKeyboard();
 		jlCreateMouse();
+
+		// Load a test texture
+		testTexture = loadTexture("/texture.png");
 	}
 
-	private void addRandomCircle() {
-		float randomRadius = 10 + (random.nextFloat() * 50f);
-		float xx = random.nextInt((int) physicsSpace.getAABB().getWidth());
-		float yy = randomRadius * 2;
+	private int loadTexture(String path) {
+		int tex = jlNewTexture();
 
-		CircleShape circle = new CircleShape(new Vec2(xx, yy), randomRadius);
-		testCircles.add(circle);
-		physicsSpace.addDynamicShape(circle, randomRadius / 100f);
-		testCircleColours.add(random.nextInt(0x555555));
+		BufferedImage textureImage = null;
+		try {
+			textureImage = ImageIO.read(getClass().getResourceAsStream(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int texWidth = textureImage.getWidth();
+		int texHeight = textureImage.getHeight();
+		int[] texturePixels = textureImage.getRGB(0, 0, texWidth, texHeight, null, 0, texWidth);
+
+		jlTextureConfiguration(testTexture, JL_DIMENSION, texWidth, texHeight);
+		jlTextureConfiguration(testTexture, JL_SRC, texturePixels);
+
+		return tex;
 	}
 
 	private void tick() {
-		if (random.nextInt(50) == 0) {
-			addRandomCircle();
-		}
-		
-		physicsSpace.tick();
+		if (jlGetKeyStatus(KeyEvent.VK_SPACE) == JL_TRUE) System.out.println("Space was pressed!");
 	}
 
 	private void render() {
-		jlSwapBuffers();
+		jlSwapBuffers(); // Must be called every frame.
 		jlClearBuffer();
 
-		jlColour4f(0f, 0f, 0f, 1f);
+		jlColour4f(1f, 0f, 0f, 1f);
 		jlDrawQuad(0, 0, screenW, screenH);
 
-		for (int i = 0; i < testCircles.size(); i++) {
-			CircleShape circle = testCircles.get(i);
-			AABB bb = circle.getAABB();
-			Vec2 p = circle.getPos();
+		jlColour4f(1f, 1f, 1f, 1f);
 
-			int c = testCircleColours.get(i);
-			float r = (c >> 16) & 0xff0000;
-			float g = (c >> 8) & 0xff00;
-			float b = (c) & 0xff;
-
-			jlColour4f(r, g, b, 1f);
-			jlDrawBox((int) bb.x0, (int) bb.y0, (int) bb.x1, (int) bb.y1);
-			jlDrawCircle((int) p.x, (int) p.y, (int) circle.getRadius());
-		}
+		jlActivateTexture(testTexture);
+		jlDrawCircle(150, 200, 40);
+		jlDeactivateTextures(); // Deactivate when not using. Does not support multi-texturing yet.
 	}
 
 	private void onClose() {

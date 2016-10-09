@@ -72,6 +72,8 @@ public class JL {
 	/**
 	 * Sets the required display parameters.
 	 * 
+	 * Accepted values: JL_DIMENSION, JL_NUM_BUFFERS, JL_CREATE, JL_RESIZABLE, JL_VISIBLE.
+	 * 
 	 * @param display
 	 *            the display you would like to configure.
 	 * @param choose
@@ -112,7 +114,7 @@ public class JL {
 				break;
 			}
 			default: {
-				throw JLException.INVALID_CONSTANT_EXCEPTION;
+				throw JLException.INVALID_ENUM_EXCEPTION;
 			}
 		}
 	}
@@ -403,6 +405,8 @@ public class JL {
 	/**
 	 * Sets the required display parameters.
 	 * 
+	 * Accepted values: JL_SRC, JL_DIMENSION, JL_SCALE, JL_TRANSLATE.
+	 * 
 	 * @param display
 	 *            the display you would like to configure.
 	 * @param choose
@@ -438,7 +442,7 @@ public class JL {
 				break;
 			}
 			default: {
-				throw JLException.INVALID_CONSTANT_EXCEPTION;
+				throw JLException.INVALID_ENUM_EXCEPTION;
 			}
 		}
 	}
@@ -462,7 +466,7 @@ public class JL {
 
 	private static Texture getTextureConfiguration(int texture) {
 		if (texture == JL_NULL) return NULL_TEXTURE;
-		if (texture < 0 || texture >= TEXTURE_CONFIGURATIONS.size()) throw JLException.INVALID_CONSTANT_EXCEPTION;
+		if (texture < 0 || texture >= TEXTURE_CONFIGURATIONS.size()) throw JLException.INVALID_ENUM_EXCEPTION;
 		return TEXTURE_CONFIGURATIONS.get(texture);
 	}
 
@@ -489,6 +493,8 @@ public class JL {
 	/**
 	 * Sets the required polygon parameters.
 	 * 
+	 * Accepted values: JL_ADD.
+	 * 
 	 * @param polygonBuffer
 	 *            the buffer you want to write to.
 	 * @param mode
@@ -505,7 +511,7 @@ public class JL {
 				break;
 			}
 			default: {
-				throw JLException.INVALID_CONSTANT_EXCEPTION;
+				throw JLException.INVALID_ENUM_EXCEPTION;
 			}
 		}
 	}
@@ -558,6 +564,7 @@ public class JL {
 		if (keyboardListener != null) return;
 		keyboardListener = new Keyboard();
 		d.addKeyListener(keyboardListener);
+		d.addFocusListener(keyboardListener);
 	}
 
 	/**
@@ -587,6 +594,8 @@ public class JL {
 	/**
 	 * Gets the mouse status depending on the given parameter.
 	 * 
+	 * Accepted values: JL_MOUSE_POS_X, JL_MOUSE_POS_Y, JL_MOUSE_BUTTON_LEFT, JL_MOUSE_BUTTON_RIGHT.
+	 * 
 	 * @param statusType
 	 *            the type of mouse input to recieve.
 	 * 
@@ -610,7 +619,7 @@ public class JL {
 				return mouseListener.getRightMouseButton() ? JL_TRUE : JL_FALSE;
 			}
 			default: {
-				throw JLException.INVALID_CONSTANT_EXCEPTION;
+				throw JLException.INVALID_ENUM_EXCEPTION;
 			}
 		}
 	}

@@ -1,10 +1,12 @@
 package com.jaspreetdhanjan.jl;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.*;
 
-public class Keyboard implements KeyListener {
+public class Keyboard implements KeyListener, FocusListener {
 	private Map<Integer, Boolean> keyMap = new HashMap<Integer, Boolean>(65535);
 
 	public Keyboard() {
@@ -30,5 +32,12 @@ public class Keyboard implements KeyListener {
 
 	public boolean getKeyStatus(int keyCode) {
 		return keyMap.get(keyCode);
+	}
+
+	public void focusGained(FocusEvent e) {
+	}
+
+	public void focusLost(FocusEvent e) {
+		reset();
 	}
 }

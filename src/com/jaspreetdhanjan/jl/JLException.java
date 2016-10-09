@@ -3,7 +3,7 @@ package com.jaspreetdhanjan.jl;
 public class JLException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
-	public static final JLException INVALID_CONSTANT_EXCEPTION = new JLException("Invalid constant!", 1);
+	public static final JLException INVALID_ENUM_EXCEPTION = new JLException("Invalid enum!", 1);
 	public static final JLException ACTIVE_TEXTURE_EXCEPTION = new JLException("You cannot delete an active texture!", 2);
 	public static final JLException DIVIDING_BY_ZERO_EXCEPTION = new JLException("You cannot scale by factor zero!", 3);
 	public static final JLException OBJECT_NOT_CREATED = new JLException("Parameter not created!", 4);
